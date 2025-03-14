@@ -1,30 +1,30 @@
 'use client';
 
 import Link from "next/link";
-import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuthContext } from "../context/authContext";
 import { Button } from "../components/ui/button";
 
 export default function Navbar() {
-  const [isDarkMode, setIsDarkMode] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const { isAuthenticated, setIsAuthenticated } = useAuthContext();
 
-  const toggleTheme = () => setIsDarkMode(!isDarkMode);
-  const handleAuth = () => setIsAuthenticated(!isAuthenticated);
+  const handleLogout = () => {
+    localStorage.removeItem('token'); // Remove the access token
+    setIsAuthenticated(false); // Update the shared state
+    router.push('/login'); // Redirect to the login page
+  };
 
   return (
-    <nav className={`p-4 flex justify-between items-center shadow-md ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}>
+    <nav className="p-4 flex justify-between items-center shadow-md bg-gray-900 text-white">
       <div className="flex gap-6">
         <Link href="/" className={pathname === "/" ? "font-bold" : ""}>Home</Link>
         <Link href="/about" className={pathname === "/about" ? "font-bold" : ""}>About</Link>
       </div>
       <div className="flex gap-4">
-        {/* <Button onClick={toggleTheme} className="px-4 py-2 border rounded-md">
-          {isDarkMode ? "🌙 Dark" : "☀️ Light"}
-        </Button> */}
         {isAuthenticated ? (
-          <Button onClick={handleAuth} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md">
+          <Button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md">
             Logout
           </Button>
         ) : (
