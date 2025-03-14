@@ -1,5 +1,7 @@
 # MIKE ROSS FRONTEND
 
+- DOCUMENTATION -> https://github.com/haroldg-dev/cctb-capstone
+
 The `front-mikeross` is the frontend application for the Mike Ross API. It is built with modern web technologies to provide a user-friendly interface for chat and messaging functionalities, including GPT-based AI features.
 
 ## Table of Contents
