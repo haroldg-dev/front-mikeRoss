@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ChatList from './ChatList';
 
 export default function Chat() {
@@ -13,7 +13,6 @@ export default function Chat() {
       const response = await fetch(`http://localhost:4040/messages/cursor/50?chatId=${chatId}`);
       const data = await response.json();
 
-      // Extract the text field from the content object of each message
       const extractedMessages = data.map((message: any) => message.content.text);
       setMessages(extractedMessages);
     } catch (error) {
@@ -26,21 +25,57 @@ export default function Chat() {
     fetchMessagesByCursor(chatId);
   };
 
-  const handleSendMessage = () => {
-    if (input.trim()) {
-      setMessages([...messages, input]);
-      setInput('');
+  const handleSendMessage = async () => {
+    if (input.trim() && selectedChatId) {
+      const newMessage = {
+        user_id: "67d36fc2525f6cd4fcb21a39", // Replace with the actual user ID
+        chat_id: selectedChatId,
+        status: "delivered",
+        direction: "outbound",
+        content: {
+          type: "text",
+          text: input,
+        },
+      };
+
+      try {
+        const response = await fetch("http://localhost:4040/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newMessage),
+        });
+
+        if (response.ok) {
+          const createdMessage = await response.json();
+          setMessages([...messages, createdMessage.content.text]);
+          setInput('');
+        } else {
+          console.error("Failed to send message:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
     }
   };
 
+  // Polling logic
+  useEffect(() => {
+    if (!selectedChatId) return;
+
+    const interval = setInterval(() => {
+      fetchMessagesByCursor(selectedChatId);
+    }, 60000); // Poll every 60 seconds
+
+    return () => clearInterval(interval); // Cleanup on unmount or when selectedChatId changes
+  }, [selectedChatId]);
+
   return (
     <div className="flex w-screen h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Chat List */}
       <ChatList onSelectChat={handleSelectChat} />
 
-      {/* Chat Area */}
       <div className="w-3/5 h-10/12 flex flex-col rounded-3xl">
-        {/* Messages Area */}
         <div className="flex-1 p-4 overflow-y-auto bg-white dark:bg-gray-800 shadow-inner rounded-t-lg">
           {messages.length === 0 ? (
             <div className="text-center text-gray-500 dark:text-gray-400 mt-10">
@@ -62,7 +97,6 @@ export default function Chat() {
           )}
         </div>
 
-        {/* Input Area */}
         <div className="p-4 bg-gray-100 dark:bg-gray-800 border-t border-gray-300 dark:border-gray-700 rounded-b-lg">
           <div className="flex items-center gap-2">
             <input
