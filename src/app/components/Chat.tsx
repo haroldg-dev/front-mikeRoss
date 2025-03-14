@@ -10,7 +10,7 @@ export default function Chat() {
 
   const fetchMessagesByCursor = async (chatId: string) => {
     try {
-      const response = await fetch(`http://localhost:4040/messages/cursor/50?chatId=${chatId}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/messages/cursor/50?chatId=${chatId}`);
       const data = await response.json();
 
       const extractedMessages = data.map((message: any) => message.content.text);
@@ -39,7 +39,7 @@ export default function Chat() {
       };
 
       try {
-        const response = await fetch("http://localhost:4040/messages", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/messages`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

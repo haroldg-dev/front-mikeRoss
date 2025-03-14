@@ -14,7 +14,7 @@ export function useMessages(chatId: string | null) {
 
       try {
         const response = await fetch(
-          `http://localhost:4040/messages/cursor/50?chatId=${chatId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/messages/cursor/50?chatId=${chatId}`
         );
         const data = await response.json();
         setMessages(data.messages || []);
